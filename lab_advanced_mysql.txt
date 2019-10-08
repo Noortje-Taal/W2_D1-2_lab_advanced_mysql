@@ -1,0 +1,60 @@
+# Challenge 1 - Most Profiting Authors
+
+#step 1
+SELECT au_id, title_id, sales_royalty
+FROM ( 
+	SELECT titleauthor.au_id AS au_id, titleauthor.title_id AS title_id, (SUM(titles.price) * SUM(sales.qty) * SUM(titles.royalty)) / (100 * SUM(titleauthor.royaltyper) / 100) AS sales_royalty 
+	FROM titleauthor 
+	INNER JOIN titles ON titleauthor.title_id = titles.title_id 
+	INNER JOIN sales ON titleauthor.title_id = sales.title_id 
+	GROUP BY au_id, title_id
+) summary; 
+
+#step 2
+SELECT au_id, title_id, SUM(sales_royalty) AS royalty
+FROM ( 
+	SELECT titleauthor.au_id AS au_id, titleauthor.title_id AS title_id, (SUM(titles.price) * SUM(sales.qty) * SUM(titles.royalty)) / (100 * SUM(titleauthor.royaltyper) / 100) AS sales_royalty 
+	FROM titleauthor 
+	INNER JOIN titles ON titleauthor.title_id = titles.title_id 
+	INNER JOIN sales ON titleauthor.title_id = sales.title_id 
+	GROUP BY au_id, title_id
+) summary
+GROUP BY au_id, title_id; 
+
+#step 3
+SELECT auther_id, (SUM(advance) + SUM(sales_royalty)) AS total_profits 
+FROM ( 
+	SELECT titleauthor.au_id AS auther_id, titleauthor.title_id AS title_id, (SUM(titles.price) * SUM(sales.qty) * SUM(titles.royalty)) / (100 * SUM(titleauthor.royaltyper) / 100) AS sales_royalty, titles.advance AS advance 
+	FROM titleauthor 
+	INNER JOIN titles ON titleauthor.title_id = titles.title_id 
+	INNER JOIN sales ON titleauthor.title_id = sales.title_id 
+	GROUP BY auther_id, title_id
+) summary
+GROUP BY auther_id  
+ORDER BY total_profits DESC 
+LIMIT 3; 
+
+# Challenge 2 - Alternative Solution
+
+CREATE TEMPORARY TABLE table_sales_royalty
+SELECT titleauthor.au_id AS auther_id, titleauthor.title_id AS title_id, (SUM(titles.price) * SUM(sales.qty) * SUM(titles.royalty)) / (100 * SUM(titleauthor.royaltyper) / 100) AS sales_royalty, titles.advance AS advance 
+FROM titleauthor 
+INNER JOIN titles ON titleauthor.title_id = titles.title_id 
+INNER JOIN sales ON titleauthor.title_id = sales.title_id 
+GROUP BY auther_id, title_id;
+
+SELECT auther_id, (SUM(advance) + SUM(sales_royalty)) AS total_profits 
+FROM table_sales_royalty
+GROUP BY auther_id 
+ORDER BY total_profits DESC 
+LIMIT 3; 
+
+# Challenge 3 
+
+CREATE TABLE most_profiting_authors 
+SELECT auther_id, (SUM(advance) + SUM(sales_royalty)) AS total_profits 
+FROM table_sales_royalty
+GROUP BY auther_id 
+ORDER BY total_profits DESC 
+LIMIT 3;
+
