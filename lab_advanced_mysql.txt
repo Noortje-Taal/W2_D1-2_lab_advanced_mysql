@@ -10,6 +10,10 @@ FROM (
 	GROUP BY au_id, title_id
 ) summary; 
 
+'''
+L.S. Well done!
+'''
+
 #step 2
 SELECT au_id, title_id, SUM(sales_royalty) AS royalty
 FROM ( 
@@ -33,6 +37,10 @@ FROM (
 GROUP BY auther_id  
 ORDER BY total_profits DESC 
 LIMIT 3; 
+
+'''
+L.S. Good!
+'''
 
 # Challenge 2 - Alternative Solution
 
